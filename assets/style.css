@@ -841,3 +841,11 @@ tbody tr:hover { background: #fcf9f5; }
   .form-grid { grid-template-columns: 1fr; }
   .admin-shell { padding: 14px 12px 40px; }
 }
+
+
+/* 微信询价 */
+.inq-wx{font-size:21px;font-weight:700;letter-spacing:.5px;color:#1b2a41;padding:4px 0 8px}
+.inq-btns{display:flex;gap:10px;margin-top:6px}
+.inq-btns .submit-btn{flex:1;text-align:center;text-decoration:none;line-height:2.6}
+.inq-prod{font-size:15px;color:#1b2a41;line-height:1.6}
+.disclaimer{margin:16px 0 0;padding:10px 12px;border-radius:10px;background:#f6f4ef;font-size:12px;color:#7c828d;line-height:1.7}

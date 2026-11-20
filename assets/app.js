@@ -438,13 +438,14 @@
               '<div class="pbody" style="padding:0"><div class="pname" style="margin-top:6px">' + S.escapeHtml(r.name) +
               '</div><div class="pmeta">' + S.escapeHtml(r.brand || r.category) + "</div></div></button>";
           }).join("") + "</div></div>" : "") +
+        '<div class="disclaimer">图片仅供参考，包装与规格以到货实物为准；价格请微信或电话询价。</div>' +
         '<div class="detail-space"></div>' +
       "</div>" +
       '<div class="bottom-bar">' +
         (phoneLink()
           ? '<a class="bb-ghost" href="' + phoneLink() + '">' + I.phone + "<span>电话咨询</span></a>"
           : '<button class="bb-ghost" data-act="call">' + I.phone + "<span>电话咨询</span></button>") +
-        '<button class="bb-main" data-act="inquire" data-id="' + S.escapeHtml(p.id) + '">' + I.chat + "<span>留言询价</span></button>" +
+        '<button class="bb-main" data-act="inquire" data-id="' + S.escapeHtml(p.id) + '">' + I.chat + "<span>微信询价</span></button>" +
       "</div>";
 
     var carousel = document.getElementById("carousel");
@@ -503,22 +504,14 @@
         "<p>添加时请备注「产品咨询」，方便我们快速对接你的需求。</p></div></div></section>" +
 
       '<section class="section" style="padding-bottom:24px">' +
-        '<div class="section-head"><h2>留言询价</h2></div>' +
+        '<div class="section-head"><h2>询价与要货</h2></div>' +
         '<div class="form-card">' +
-          '<div class="field"><label>怎么称呼你 <span style="color:#c0432a">*</span></label>' +
-            '<input id="cName" type="text" maxlength="20" placeholder="例如：王老板 / 王女士"></div>' +
-          '<div class="field"><label>联系电话 <span style="color:#c0432a">*</span></label>' +
-            '<input id="cPhone" type="tel" maxlength="20" placeholder="方便我们回电的号码"></div>' +
-          '<div class="field"><label>想了解什么</label>' +
-            '<textarea id="cNote" maxlength="200" placeholder="例如：想要酱油的整箱价格和起订量，能否先寄样"></textarea></div>' +
-          '<button class="submit-btn" id="cSubmit">提交留言</button>' +
-          '<div class="field hint" style="margin:10px 0 0">演示版留言仅保存在本机浏览器，正式上线后可接入云端并实时推送到微信。</div>' +
+          '<div class="field"><label>微信号（微信与电话同号）</label>' +
+            '<div class="inq-wx">' + S.escapeHtml(meta.wechat || meta.phone || "") + "</div></div>" +
+          '<button class="submit-btn" data-act="copy" data-value="' + S.escapeHtml(meta.wechat || meta.phone || "") + '" data-label="微信号">复制微信号</button>' +
+          '<div class="field hint" style="margin:10px 0 0">加微信请备注「产品咨询」，写清要的产品和数量，我们把价格、起订量与库存直接发你。</div>' +
         "</div></section>";
 
-    document.getElementById("cSubmit").addEventListener("click", function () {
-      submitMessage(document.getElementById("cName"), document.getElementById("cPhone"),
-        document.getElementById("cNote"), "", "");
-    });
     window.scrollTo(0, 0);
   }
 
@@ -548,29 +541,29 @@
 
   function openInquiry(id) {
     var p = products.filter(function (x) { return x.id === id; })[0] || {};
-    var title = p.name ? "咨询：" + p.name : "留言询价";
-    var note = p.name ? "想了解 " + p.name + (p.spec ? "（" + p.spec + "）" : "") + " 的价格、起订量与库存情况。" : "";
+    var wx = meta.wechat || meta.phone || "";
+    var tip = p.name
+      ? "加微信时备注：" + p.name + (p.spec ? "（" + p.spec + "）" : "")
+      : "加微信时备注「产品咨询」";
     sheet.innerHTML =
-      '<div class="sheet-head"><h3>' + S.escapeHtml(title) + "</h3>" +
+      '<div class="sheet-head"><h3>微信询价</h3>' +
         '<button class="close" data-act="close-sheet" aria-label="关闭">×</button></div>' +
       '<div class="form-card" style="box-shadow:none;padding:0;background:transparent">' +
-        '<div class="field"><label>怎么称呼你 <span style="color:#c0432a">*</span></label>' +
-          '<input id="sName" type="text" maxlength="20" placeholder="例如：王老板"></div>' +
-        '<div class="field"><label>联系电话 <span style="color:#c0432a">*</span></label>' +
-          '<input id="sPhone" type="tel" maxlength="20" placeholder="方便回电的号码"></div>' +
-        '<div class="field"><label>备注</label>' +
-          '<textarea id="sNote" maxlength="200">' + S.escapeHtml(note) + "</textarea></div>" +
-        '<button class="submit-btn" id="sSubmit">提交</button>' +
-        '<div class="field hint" style="margin:10px 0 0">演示版留言保存在本机，正式上线后可在后台查看并推送到微信。</div>' +
+        (p.name
+          ? '<div class="field"><label>咨询产品</label><div class="inq-prod">' +
+            S.escapeHtml(p.name) + (p.spec ? " · " + S.escapeHtml(p.spec) : "") + "</div></div>"
+          : "") +
+        '<div class="field"><label>微信号（微信与电话同号）</label>' +
+          '<div class="inq-wx">' + S.escapeHtml(wx) + "</div></div>" +
+        '<div class="inq-btns">' +
+          '<button class="submit-btn" data-act="copy" data-value="' + S.escapeHtml(wx) + '" data-label="微信号">复制微信号</button>' +
+          (phoneLink() ? '<a class="submit-btn" href="' + phoneLink() + '">直接拨号</a>' : "") +
+        "</div>" +
+        '<div class="field hint" style="margin:10px 0 0">' + S.escapeHtml(tip) + "，价格、起订量和库存我直接发你。</div>" +
       "</div>";
     sheetMask.classList.add("show");
     sheet.classList.add("show");
     sheet.setAttribute("aria-hidden", "false");
-    document.getElementById("sSubmit").addEventListener("click", function () {
-      var ok = submitMessage(document.getElementById("sName"), document.getElementById("sPhone"),
-        document.getElementById("sNote"), p.name || "", p.id || "");
-      if (ok) closeSheet();
-    });
   }
 
   function closeSheet() {
