@@ -73,6 +73,15 @@
     if (seeded) {
       if (!localStorage.getItem(KEYS.meta)) {
         writeJSON(KEYS.meta, global.SEED_META || FALLBACK_META);
+      } else if (!localStorage.getItem("pc_meta_fill_v1121")) {
+        var sm = readJSON(KEYS.meta, null) || {};
+        var sd = global.SEED_META || FALLBACK_META;
+        var changed = false;
+        ["phone", "wechat", "address", "hours", "qrcode"].forEach(function (k) {
+          if ((!sm[k] || String(sm[k]).trim() === "") && sd[k]) { sm[k] = sd[k]; changed = true; }
+        });
+        if (changed) writeJSON(KEYS.meta, sm);
+        localStorage.setItem("pc_meta_fill_v1121", "1");
       }
       return;
     }
@@ -114,8 +123,13 @@
   }
 
   function getMeta() {
-    var meta = readJSON(KEYS.meta, FALLBACK_META);
-    return Object.assign({}, FALLBACK_META, meta || {});
+    var base = global.SEED_META || FALLBACK_META;
+    var meta = readJSON(KEYS.meta, base) || {};
+    var out = Object.assign({}, base, meta);
+    Object.keys(out).forEach(function (k) {
+      if ((out[k] === "" || out[k] == null) && base[k]) out[k] = base[k];
+    });
+    return out;
   }
 
   function setMeta(meta) {
