@@ -139,11 +139,52 @@
       .sort(function (a, b) { return b.count - a.count; });
   }
 
+  // 厂家官方标志（已统一处理为白底方形图，放 img/brands/）
+  var BRAND_LOGOS = {
+    "单山": "img/brands/单山.jpg",
+    "千禾": "img/brands/千禾.jpg",
+    "味好美": "img/brands/味好美.jpg",
+    "李锦记": "img/brands/李锦记.jpg",
+    "凤球唛": "img/brands/凤球唛.jpg",
+    "东古": "img/brands/东古.jpg",
+    "海天": "img/brands/海天.jpg",
+    "上海梅林": "img/brands/上海梅林.jpg",
+    "恒谊": "img/brands/恒谊.jpg"
+  };
+
+  // 分类代表图：挑每个分类里最有辨识度的一款做缩略图
+  var CAT_PICK = {
+    "酱油醋类": "p6928312916007",
+    "复合调料": "p6930777200027",
+    "酱菜": "p6940250300960",
+    "普粉": "p6926375920467",
+    "午餐肉": "p6902131110020",
+    "芝麻/花椒油": "p6905113000500",
+    "鸡精": "p6974237941891",
+    "下饭菜": "p6901754040936"
+  };
+
+  function catImage(name, products) {
+    var pick = CAT_PICK[name];
+    var i, p;
+    if (pick) {
+      for (i = 0; i < products.length; i++) {
+        p = products[i];
+        if (p.id === pick && p.images && p.images[0]) return p.images[0];
+      }
+    }
+    for (i = 0; i < products.length; i++) {
+      p = products[i];
+      if (p.category === name && p.images && p.images[0]) return p.images[0];
+    }
+    return "";
+  }
+
   function brandList() {
     var map = {};
     products.forEach(function (p) {
       if (!p.brand) return;
-      if (!map[p.brand]) map[p.brand] = { name: p.brand, count: 0, img: "" };
+      if (!map[p.brand]) map[p.brand] = { name: p.brand, count: 0, logo: BRAND_LOGOS[p.brand] || "", img: "" };
       map[p.brand].count += 1;
       if (!map[p.brand].img && p.images && p.images[0]) map[p.brand].img = p.images[0];
     });
@@ -187,9 +228,13 @@
 
     var catHtml = cats.slice(0, 7).map(function (c) {
       var pal = S.paletteFor(c.name);
+      var ci = catImage(c.name, products);
+      var icon = ci
+        ? '<div class="cat-icon cat-img"><img src="' + S.escapeHtml(ci) + '" loading="lazy" alt=""></div>'
+        : '<div class="cat-icon" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
+          S.escapeHtml(c.name.slice(0, 1)) + "</div>";
       return '<button class="cat-item" data-act="cat" data-name="' + S.escapeHtml(c.name) + '">' +
-        '<div class="cat-icon" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
-        S.escapeHtml(c.name.slice(0, 1)) + "</div>" +
+        icon +
         '<div class="cat-name">' + S.escapeHtml(c.name) + "</div>" +
         '<div class="cat-count">' + c.count + " 款</div></button>";
     }).join("");
@@ -201,8 +246,8 @@
 
     var brandHtml = brands.slice(0, 12).map(function (b) {
       var pal = S.paletteFor(b.name);
-      var logo = b.img
-        ? '<img class="brand-logo" src="' + S.escapeHtml(b.img) + '" loading="lazy" alt="">'
+      var logo = (b.logo || b.img)
+        ? '<img class="brand-logo" src="' + S.escapeHtml(b.logo || b.img) + '" loading="lazy" alt="">'
         : '<span class="brand-logo ph" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
           S.escapeHtml(b.name.slice(0, 1)) + "</span>";
       return '<button class="brand-pill" data-act="brand" data-name="' + S.escapeHtml(b.name) + '">' +
