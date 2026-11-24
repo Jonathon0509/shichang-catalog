@@ -14,7 +14,7 @@
 
   var products = [];
   var meta = S.getMeta();
-  var state = { q: "", cat: "", brand: "", sort: "default", currentId: "", fromHash: "#/list", limit: 40 };
+  var state = { q: "", cat: "", brand: "", sort: "default", currentId: "", fromHash: "#/list", limit: 40, newOnly: false };
   var toastTimer = null;
 
   var I = {
@@ -117,7 +117,7 @@
 
   function productCard(p) {
     var img = p.images && p.images[0]
-      ? '<div class="pimg"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '" loading="lazy">' +
+      ? '<div class="pimg"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '">' +
         (p.featured ? '<span class="pick">精选</span>' : "") + "</div>"
       : placeholder(p, 40);
     return '<button class="pcard" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
@@ -180,6 +180,27 @@
     return "";
   }
 
+  // ---------- 最近上新 ----------
+  var NEWGOODS = (typeof window !== "undefined" && window.SEED_NEWGOODS) || {};
+  var NEW_IDS = (NEWGOODS.ids || []).slice();
+  var NEW_INDEX = {};
+  NEW_IDS.forEach(function (id) { NEW_INDEX[id] = 1; });
+
+  function isNew(id) { return NEW_INDEX[id] === 1; }
+
+  function newItems(limit) {
+    var out = [];
+    for (var i = 0; i < NEW_IDS.length; i++) {
+      var p = null;
+      for (var j = 0; j < products.length; j++) {
+        if (products[j].id === NEW_IDS[i]) { p = products[j]; break; }
+      }
+      if (p && p.images && p.images[0]) out.push(p);
+      if (limit && out.length >= limit) break;
+    }
+    return out;
+  }
+
   function brandList() {
     var map = {};
     products.forEach(function (p) {
@@ -228,32 +249,40 @@
       featured = products.slice().sort(function (a, b) { return b.updatedAt - a.updatedAt; }).slice(0, 8);
     }
 
-    var catHtml = cats.slice(0, 7).map(function (c) {
+    var catHtml = cats.slice(0, 9).map(function (c) {
       var pal = S.paletteFor(c.name);
       var ci = catImage(c.name, products);
       var icon = ci
-        ? '<div class="cat-icon cat-img"><img src="' + S.escapeHtml(ci) + '" loading="lazy" alt=""></div>'
+        ? '<div class="cat-icon cat-img"><img src="' + S.escapeHtml(ci) + '" alt=""></div>'
         : '<div class="cat-icon" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
           S.escapeHtml(c.name.slice(0, 1)) + "</div>";
-      return '<button class="cat-item" data-act="cat" data-name="' + S.escapeHtml(c.name) + '">' +
+      return '<button class="cat-item cat-chip" data-act="cat" data-name="' + S.escapeHtml(c.name) + '">' +
         icon +
         '<div class="cat-name">' + S.escapeHtml(c.name) + "</div>" +
         '<div class="cat-count">' + c.count + " 款</div></button>";
     }).join("");
 
-    catHtml += '<button class="cat-item" data-act="tab" data-to="#/list">' +
+    var catAll = '<button class="cat-item cat-chip" data-act="tab" data-to="#/list">' +
       '<div class="cat-icon" style="background:linear-gradient(145deg,#8a7a6b,#5c4d41)">' +
       '<span style="font-size:19px">⋯</span></div>' +
-      '<div class="cat-name">全部分类</div><div class="cat-count">' + products.length + " 款</div></button>";
+      '<div class="cat-name">全部</div><div class="cat-count">' + products.length + " 款</div></button>";
 
-    var brandHtml = brands.slice(0, 12).map(function (b) {
+    var brandHtml = brands.slice(0, 8).map(function (b) {
       var pal = S.paletteFor(b.name);
       var logo = (b.logo || b.img)
-        ? '<img class="brand-logo" src="' + S.escapeHtml(b.logo || b.img) + '" loading="lazy" alt="">'
+        ? '<img class="brand-logo" src="' + S.escapeHtml(b.logo || b.img) + '" alt="">'
         : '<span class="brand-logo ph" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
           S.escapeHtml(b.name.slice(0, 1)) + "</span>";
       return '<button class="brand-pill" data-act="brand" data-name="' + S.escapeHtml(b.name) + '">' +
         logo + "<strong>" + S.escapeHtml(b.name) + "</strong><span>" + b.count + " 款产品</span></button>";
+    }).join("");
+
+    var newPicks = newItems(8);
+    var newHtml = newPicks.map(function (p) {
+      return '<button class="new-card" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
+        '<div class="new-img"><img src="' + S.escapeHtml(p.images[0]) + '" alt=""></div>' +
+        '<div class="new-name">' + S.escapeHtml(p.name) + "</div>" +
+        '<div class="new-spec">' + S.escapeHtml(p.spec || p.category) + "</div></button>";
     }).join("");
 
     view.innerHTML =
@@ -268,11 +297,16 @@
         '<button class="searchbar" data-act="tab" data-to="#/list" style="width:100%">' + I.search +
         '<span style="flex:1;text-align:left;font-size:14px;color:#b3a69b">搜索产品名称、规格、条码</span></button>' +
       "</div>" +
+      (brandHtml ? '<section class="section"><div class="section-head"><h2>合作品牌</h2>' +
+        '<button class="more" data-act="tab" data-to="#/list">全部 ›</button></div>' +
+        '<div class="brand-grid">' + brandHtml + "</div></section>" : "") +
       '<section class="section"><div class="section-head"><h2>产品分类</h2>' +
         '<button class="more" data-act="tab" data-to="#/list">全部 ›</button></div>' +
-        '<div class="cat-grid">' + catHtml + "</div></section>" +
-      (brandHtml ? '<section class="section"><div class="section-head"><h2>合作品牌</h2></div>' +
-        '<div class="brand-scroll">' + brandHtml + "</div></section>" : "") +
+        '<div class="cat-scroll">' + catHtml + catAll + "</div></section>" +
+      (newHtml ? '<section class="section"><div class="section-head"><h2>最近上新</h2>' +
+        '<button class="more" data-act="tab" data-to="#/list?new=1">全部新品 ›</button></div>' +
+        '<div class="new-scroll">' + newHtml + "</div>" +
+        '<div class="new-note">' + S.escapeHtml(NEWGOODS.note || "") + "</div></section>" : "") +
       '<section class="section"><div class="section-head"><h2>精选产品</h2>' +
         '<button class="more" data-act="tab" data-to="#/list">查看全部 ›</button></div>' +
         '<div class="product-grid">' + featured.map(productCard).join("") + "</div></section>" +
@@ -290,6 +324,7 @@
     var list = products.filter(function (p) {
       if (state.cat && p.category !== state.cat) return false;
       if (state.brand && p.brand !== state.brand) return false;
+      if (state.newOnly && !isNew(p.id)) return false;
       if (!q) return true;
       var hay = [p.name, p.brand, p.category, p.spec, p.unit, p.barcode, (p.tags || []).join(" ")].join(" ").toLowerCase();
       return hay.indexOf(q) >= 0;
@@ -311,7 +346,7 @@
   function productRow(p) {
     var thumb;
     if (p.images && p.images[0]) {
-      thumb = '<div class="row-thumb"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '" loading="lazy">' +
+      thumb = '<div class="row-thumb"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '">' +
         (p.featured ? '<span class="pick">精选</span>' : "") + "</div>";
     } else {
       var c = S.paletteFor(p.category);
@@ -323,7 +358,8 @@
     return '<button class="row-card" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
       thumb +
       '<div class="row-info">' +
-        '<div class="row-name">' + S.escapeHtml(p.name) + "</div>" +
+        '<div class="row-name">' + S.escapeHtml(p.name) +
+          (isNew(p.id) ? '<span class="newflag">新品</span>' : "") + "</div>" +
         '<div class="row-meta">' + S.escapeHtml(p.brand || "未标注品牌") + " · " + S.escapeHtml(p.category) + "</div>" +
         (p.spec ? '<div class="row-spec">' + S.escapeHtml(p.spec) + "</div>" : "") +
       "</div>" +
@@ -358,7 +394,9 @@
     });
 
     // 左边栏 = 品牌，上方 = 分类
-    var sideHtml = sideItem("", products.length, !state.brand, "brand") +
+    var sideHtml = sideItem("", products.length, !state.brand && !state.newOnly, "brand") +
+      '<button class="side-item side-new' + (state.newOnly ? " active" : "") + '" data-act="chip" data-kind="new" data-name="__new__">' +
+        '<span class="side-name">最近上新</span><span class="side-count">' + NEW_IDS.length + "</span></button>" +
       brands.map(function (b) { return sideItem(b.name, b.count, state.brand === b.name, "brand"); }).join("");
 
     var catOptions = '<option value="">全部分类</option>' + cats.map(function (c) {
@@ -486,7 +524,7 @@
       '<div class="detail-hero"><div class="carousel" id="carousel">' + slides + "</div>" + dots + "</div>" +
       '<div class="detail-main">' +
         '<h1 class="detail-title">' + S.escapeHtml(p.name) + "</h1>" +
-        '<div class="detail-tags">' + tagHtml + "</div>" +
+        '<div class="detail-tags">' + (isNew(p.id) ? '<span class="tag hot">新品</span>' : "") + tagHtml + "</div>" +
         (paramRows ? '<dl class="panel"><div class="panel-title">产品参数</div>' + paramRows + "</dl>" : "") +
         (p.desc ? '<div class="panel desc-panel"><div class="panel-title">产品介绍</div>' +
           '<div class="desc-text">' + S.escapeHtml(p.desc) + "</div></div>" : "") +
@@ -494,7 +532,7 @@
           '<div class="reco-scroll">' + reco.map(function (r) {
             return '<button class="pcard reco-card" data-act="product" data-id="' + S.escapeHtml(r.id) + '">' +
               (r.images && r.images[0]
-                ? '<div class="pimg"><img src="' + S.escapeHtml(r.images[0]) + '" loading="lazy" alt=""></div>'
+                ? '<div class="pimg"><img src="' + S.escapeHtml(r.images[0]) + '" alt=""></div>'
                 : placeholder(r, 26)) +
               '<div class="pbody" style="padding:0"><div class="pname" style="margin-top:6px">' + S.escapeHtml(r.name) +
               '</div><div class="pmeta">' + S.escapeHtml(r.brand || r.category) + "</div></div></button>";
@@ -650,6 +688,7 @@
       state.q = r.query.q || "";
       state.cat = r.query.cat || "";
       state.brand = r.query.brand || "";
+      state.newOnly = r.query.new === "1";
       renderList();
       return;
     }
@@ -681,6 +720,7 @@
       state.cat = el.getAttribute("data-name");
       state.brand = "";
       state.q = "";
+      state.newOnly = false;
       go("#/list" + queryString({ cat: state.cat }));
       return;
     }
@@ -688,6 +728,7 @@
       state.brand = el.getAttribute("data-name");
       state.cat = "";
       state.q = "";
+      state.newOnly = false;
       go("#/list" + queryString({ brand: state.brand }));
       return;
     }
@@ -699,11 +740,18 @@
     if (act === "chip") {
       var kind = el.getAttribute("data-kind");
       var name = el.getAttribute("data-name");
-      if (kind === "cat") state.cat = name;
-      if (kind === "brand") state.brand = name;
+      if (kind === "new") {
+        state.newOnly = !state.newOnly;
+        state.cat = "";
+        state.brand = "";
+      } else {
+        if (kind === "cat") { state.cat = name; state.newOnly = false; }
+        if (kind === "brand") { state.brand = name; state.newOnly = false; }
+        if (kind === "brand" && !name) { state.brand = ""; }
+      }
       state.limit = 40;
       refreshList();
-      history.replaceState(null, "", "#/list" + queryString({ cat: state.cat, brand: state.brand, q: state.q }));
+      history.replaceState(null, "", "#/list" + queryString({ cat: state.cat, brand: state.brand, q: state.q, new: state.newOnly ? 1 : "" }));
       window.scrollTo(0, 0);
       return;
     }
