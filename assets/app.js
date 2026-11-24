@@ -14,6 +14,10 @@
 
   var products = [];
   var meta = S.getMeta();
+  // 暂不展示的品牌（后期需要再放出来）
+  var HIDDEN_BRANDS = ["海天", "老干妈"];
+  function isHiddenBrand(name) { return HIDDEN_BRANDS.indexOf((name || "").trim()) >= 0; }
+
   var state = { q: "", cat: "", brand: "", sort: "default", currentId: "", fromHash: "#/list", limit: 40, newOnly: false };
   var toastTimer = null;
 
@@ -149,7 +153,8 @@
     "东古": "img/brands/东古.jpg",
     "海天": "img/brands/海天.jpg",
     "上海梅林": "img/brands/上海梅林.jpg",
-    "恒谊": "img/brands/恒谊.jpg"
+    "恒谊": "img/brands/恒谊.jpg",
+    "磁器口": "img/brands/磁器口.jpg"
   };
 
   // 分类代表图：挑每个分类里最有辨识度的一款做缩略图
@@ -267,7 +272,7 @@
       '<span style="font-size:19px">⋯</span></div>' +
       '<div class="cat-name">全部</div><div class="cat-count">' + products.length + " 款</div></button>";
 
-    var brandHtml = brands.slice(0, 8).map(function (b) {
+    var brandHtml = brands.filter(function (b) { return !!b.logo; }).slice(0, 8).map(function (b) {
       var pal = S.paletteFor(b.name);
       var logo = (b.logo || b.img)
         ? '<img class="brand-logo" src="' + S.escapeHtml(b.logo || b.img) + '" alt="">'
@@ -681,7 +686,7 @@
   /* ---------------- 路由 ---------------- */
   function route() {
     var r = parseHash();
-    products = S.getProducts().map(S.normalizeProduct);
+    products = S.getProducts().map(S.normalizeProduct).filter(function (p) { return !isHiddenBrand(p.brand); });
     meta = S.getMeta();
 
     if (r.path.indexOf("/detail/") === 0) {
