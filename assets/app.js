@@ -143,9 +143,11 @@
     var map = {};
     products.forEach(function (p) {
       if (!p.brand) return;
-      map[p.brand] = (map[p.brand] || 0) + 1;
+      if (!map[p.brand]) map[p.brand] = { name: p.brand, count: 0, img: "" };
+      map[p.brand].count += 1;
+      if (!map[p.brand].img && p.images && p.images[0]) map[p.brand].img = p.images[0];
     });
-    return Object.keys(map).map(function (k) { return { name: k, count: map[k] }; })
+    return Object.keys(map).map(function (k) { return map[k]; })
       .sort(function (a, b) { return b.count - a.count; });
   }
 
@@ -197,13 +199,19 @@
       '<span style="font-size:19px">⋯</span></div>' +
       '<div class="cat-name">全部分类</div><div class="cat-count">' + products.length + " 款</div></button>";
 
-    var brandHtml = brands.slice(0, 8).map(function (b) {
+    var brandHtml = brands.slice(0, 12).map(function (b) {
+      var pal = S.paletteFor(b.name);
+      var logo = b.img
+        ? '<img class="brand-logo" src="' + S.escapeHtml(b.img) + '" loading="lazy" alt="">'
+        : '<span class="brand-logo ph" style="background:linear-gradient(145deg,' + pal[0] + ',' + pal[1] + ')">' +
+          S.escapeHtml(b.name.slice(0, 1)) + "</span>";
       return '<button class="brand-pill" data-act="brand" data-name="' + S.escapeHtml(b.name) + '">' +
-        "<strong>" + S.escapeHtml(b.name) + "</strong><span>" + b.count + " 款产品</span></button>";
+        logo + "<strong>" + S.escapeHtml(b.name) + "</strong><span>" + b.count + " 款产品</span></button>";
     }).join("");
 
     view.innerHTML =
       '<section class="hero">' +
+        '<img class="hero-logo" src="img/logo_scmc.jpg" alt="">' +
         '<div class="eyebrow">PRODUCT CATALOG</div>' +
         "<h1>" + S.escapeHtml(meta.shopName || "产品中心") + "</h1>" +
         "<p>" + S.escapeHtml(meta.slogan || "产品齐全 · 欢迎来电咨询") + "</p>" +
