@@ -134,6 +134,21 @@
       "</div></button>";
   }
 
+  function newProductCard(p) {
+    var img = p.images && p.images[0]
+      ? '<div class="pimg"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '">' +
+        '<span class="pick new">新品</span></div>'
+      : placeholder(p, 40);
+    return '<button class="pcard" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
+      img +
+      '<div class="pbody">' +
+        '<div class="pname">' + S.escapeHtml(p.name) + "</div>" +
+        '<div class="pmeta">' + S.escapeHtml(p.brand || "未标注品牌") + " · " + S.escapeHtml(p.category) + "</div>" +
+        (p.spec ? '<div class="pspec">' + S.escapeHtml(p.spec) + "</div>" : "") +
+        '<div class="plink">查看详情 ›</div>' +
+      "</div></button>";
+  }
+
   function catList() {
     var map = {};
     products.forEach(function (p) {
@@ -291,13 +306,8 @@
         logo + "<strong>" + S.escapeHtml(b.name) + "</strong><span>" + b.count + " 款产品</span></button>";
     }).join("");
 
-    var newPicks = newItems(8);
-    var newHtml = newPicks.map(function (p) {
-      return '<button class="new-card" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
-        '<div class="new-img"><img src="' + S.escapeHtml(p.images[0]) + '" alt=""></div>' +
-        '<div class="new-name">' + S.escapeHtml(p.name) + "</div>" +
-        '<div class="new-spec">' + S.escapeHtml(p.spec || p.category) + "</div></button>";
-    }).join("");
+    var newPicks = newItems(6);
+    var newHtml = newPicks.map(newProductCard).join("");
 
     view.innerHTML =
       '<section class="hero">' +
@@ -319,7 +329,7 @@
         '<div class="cat-scroll">' + catHtml + catAll + "</div></section>" +
       (newHtml ? '<section class="section"><div class="section-head"><h2>最近上新</h2>' +
         '<button class="more" data-act="tab" data-to="#/list?new=1">全部新品 ›</button></div>' +
-        '<div class="new-scroll">' + newHtml + "</div>" +
+        '<div class="product-grid">' + newHtml + "</div>" +
         '<div class="new-note">' + S.escapeHtml(NEWGOODS.note || "") + "</div></section>" : "") +
       '<section class="section" style="padding-bottom:24px">' +
         '<div class="notice" style="margin-top:14px;background:#f3ece3;border-color:#e7dbcc;color:#7c6a58">' +

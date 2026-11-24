@@ -281,6 +281,7 @@ input, textarea, select { font-family: inherit; font-size: 15px; }
   background: rgba(255, 255, 255, 0.92); color: var(--brand-dark);
   font-weight: 600;
 }
+.pimg .pick.new { left: auto; right: 8px; background: #2f7d4f; color: #fff; }
 .pimg img { width: 100%; height: 100%; object-fit: cover; }
 .pbody { padding: 10px 11px 12px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
 .pname {
@@ -953,7 +954,7 @@ body.list-mode .app { height: 100vh; height: 100dvh; overflow: hidden; }
 .new-scroll::-webkit-scrollbar { display: none; }
 .new-card {
   flex: none;
-  width: 172px;
+  width: 116px;
   background: var(--card);
   border-radius: 12px;
   padding: 8px 8px 9px;
