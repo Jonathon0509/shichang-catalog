@@ -387,7 +387,7 @@
     var cats = catList();
     var brands = brandList();
     setChrome({
-      title: state.brand || "全部产品",
+      title: state.newOnly ? "最近上新" : (state.brand || "全部产品"),
       tabs: true,
       active: "list",
       back: "#/home"
@@ -452,7 +452,7 @@
     }
 
     if (count) {
-      count.textContent = (state.brand || "全部产品") + (state.cat ? " · " + state.cat : "") + " · 共 " + list.length + " 款" +
+      count.textContent = (state.newOnly ? "最近上新" : (state.brand || "全部产品")) + (state.cat ? " · " + state.cat : "") + " · 共 " + list.length + " 款" +
         (list.length > shown.length ? "，已显示 " + shown.length : "");
     }
     var sortBtn = document.getElementById("sortBtn");
