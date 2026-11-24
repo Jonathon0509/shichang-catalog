@@ -461,7 +461,11 @@
     var side = document.getElementById("catSide");
     if (side) {
       Array.prototype.forEach.call(side.querySelectorAll(".side-item"), function (el) {
-        el.classList.toggle("active", (el.getAttribute("data-name") || "") === (state.brand || ""));
+        if (el.getAttribute("data-kind") === "new") {
+          el.classList.toggle("active", !!state.newOnly);
+          return;
+        }
+        el.classList.toggle("active", !state.newOnly && (el.getAttribute("data-name") || "") === (state.brand || ""));
       });
     }
     var catSel = document.getElementById("catSel");

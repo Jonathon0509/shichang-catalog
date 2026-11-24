@@ -1005,3 +1005,10 @@ body.list-mode .app { height: 100vh; height: 100dvh; overflow: hidden; }
 .side-item.side-new { border-top: 1px dashed rgba(0, 0, 0, 0.08); border-bottom: 1px dashed rgba(0, 0, 0, 0.08); }
 .side-item.side-new .side-name { color: #2f7d4f; font-weight: 600; }
 
+
+.side-item.side-new.active { border-left-color: #2f7d4f; color: #2f7d4f; }
+.side-item.side-new.active .side-name { color: #2f7d4f; font-weight: 700; }
+.side-item.side-new.active .side-count { color: #2f7d4f; }
+
+.new-card:active { transform: scale(0.97); box-shadow: 0 0 0 2px rgba(47,125,79,.35) inset; }
+
