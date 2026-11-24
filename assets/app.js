@@ -321,9 +321,6 @@
         '<button class="more" data-act="tab" data-to="#/list?new=1">全部新品 ›</button></div>' +
         '<div class="new-scroll">' + newHtml + "</div>" +
         '<div class="new-note">' + S.escapeHtml(NEWGOODS.note || "") + "</div></section>" : "") +
-      '<section class="section"><div class="section-head"><h2>精选产品</h2>' +
-        '<button class="more" data-act="tab" data-to="#/list">查看全部 ›</button></div>' +
-        '<div class="product-grid">' + featured.map(productCard).join("") + "</div></section>" +
       '<section class="section" style="padding-bottom:24px">' +
         '<div class="notice" style="margin-top:14px;background:#f3ece3;border-color:#e7dbcc;color:#7c6a58">' +
         "本页仅用于产品展示，具体价格、库存与起订量请来电或留言咨询。</div>" +
