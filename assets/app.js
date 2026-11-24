@@ -136,7 +136,7 @@
 
   function newProductCard(p) {
     var img = p.images && p.images[0]
-      ? '<div class="pimg"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '">' +
+      ? '<div class="pimg contain"><img src="' + S.escapeHtml(p.images[0]) + '" alt="' + S.escapeHtml(p.name) + '">' +
         '<span class="pick new">新品</span></div>'
       : placeholder(p, 40);
     return '<button class="pcard" data-act="product" data-id="' + S.escapeHtml(p.id) + '">' +
