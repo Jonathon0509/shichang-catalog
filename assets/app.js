@@ -210,6 +210,8 @@
 
   /* ---------------- 首页 ---------------- */
   function renderHome() {
+    document.body.classList.remove("list-mode");
+    document.documentElement.classList.remove("list-mode");
     setChrome({
       title: meta.shopName || "产品中心",
       tabs: true,
@@ -344,6 +346,8 @@
   }
 
   function renderList() {
+    document.body.classList.add("list-mode");
+    document.documentElement.classList.add("list-mode");
     var cats = catList();
     var brands = brandList();
     setChrome({
@@ -382,6 +386,8 @@
 
     refreshList();
     window.scrollTo(0, 0);
+    var mainPane = document.querySelector(".po-main");
+    if (mainPane) mainPane.scrollTop = 0;
   }
 
   function refreshList() {
@@ -426,6 +432,8 @@
 
   /* ---------------- 详情 ---------------- */
   function renderDetail(id) {
+    document.body.classList.remove("list-mode");
+    document.documentElement.classList.remove("list-mode");
     var p = products.filter(function (x) { return x.id === id; })[0];
     setChrome({ title: "产品详情", tabs: false, back: state.fromHash || "#/list" });
 
@@ -517,6 +525,8 @@
 
   /* ---------------- 联系我们 ---------------- */
   function renderContact() {
+    document.body.classList.remove("list-mode");
+    document.documentElement.classList.remove("list-mode");
     setChrome({ title: "联系我们", tabs: true, active: "contact", back: "#/home" });
 
     view.innerHTML =

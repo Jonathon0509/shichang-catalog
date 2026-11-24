@@ -341,20 +341,26 @@ input, textarea, select { font-family: inherit; font-size: 15px; }
 /* ---------- 点单式双栏（左分类 / 右清单） ---------- */
 .po-layout {
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   gap: 8px;
-  padding: 0 8px 20px;
+  padding: 0 8px 0;
+  height: calc(100vh - 112px);
+  height: calc(100dvh - 112px);
+  min-height: 360px;
 }
 .po-side {
-  position: sticky;
-  top: 52px;
+  position: relative;
+  top: auto;
   flex: none;
   width: 94px;
-  max-height: calc(100vh - 60px);
+  height: 100%;
+  max-height: none;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
   background: #efe7db;
   border-radius: 12px;
-  padding: 6px 0;
+  padding: 6px 0 14px;
   scrollbar-width: none;
 }
 .po-side::-webkit-scrollbar { display: none; }
@@ -378,10 +384,17 @@ input, textarea, select { font-family: inherit; font-size: 15px; }
 }
 .side-item.active .side-count { color: var(--brand); }
 
-.po-main { flex: 1; min-width: 0; }
+.po-main {
+  flex: 1; min-width: 0;
+  height: 100%;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+  padding-bottom: 14px;
+}
 .po-tools {
   position: sticky;
-  top: 52px;
+  top: 0;
   z-index: 10;
   background: var(--bg);
   padding: 4px 0 6px;
@@ -870,3 +883,7 @@ tbody tr:hover { background: #fcf9f5; }
   object-fit: contain; margin: 0 0 10px -2px;
   background: rgba(255,255,255,.92); border-radius: 12px; padding: 5px;
 }
+
+/* 产品列表页：整页不滚动，左右两栏各自滚动 */
+html.list-mode, body.list-mode { overflow: hidden; height: 100%; }
+body.list-mode .app { height: 100vh; height: 100dvh; overflow: hidden; }
