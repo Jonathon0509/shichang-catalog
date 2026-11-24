@@ -154,8 +154,13 @@
     "海天": "img/brands/海天.jpg",
     "上海梅林": "img/brands/上海梅林.jpg",
     "恒谊": "img/brands/恒谊.jpg",
-    "磁器口": "img/brands/磁器口.jpg"
+    "磁器口": "img/brands/磁器口.jpg",
+    "乌江": "img/brands/乌江.jpg",
+    "不等": "img/brands/不等.jpg"
   };
+
+  // 首页合作品牌展示位（固定顺序，不跟销量/款数排序）
+  var HOME_BRANDS = ["单山", "千禾", "味好美", "李锦记", "乌江", "东古", "不等", "上海梅林"];
 
   // 分类代表图：挑每个分类里最有辨识度的一款做缩略图
   var CAT_PICK = {
@@ -241,8 +246,7 @@
     setChrome({
       title: meta.shopName || "产品中心",
       tabs: true,
-      active: "home",
-      right: '<a class="action" href="admin.html">管理</a>'
+      active: "home"
     });
 
     var cats = catList();
@@ -272,7 +276,12 @@
       '<span style="font-size:19px">⋯</span></div>' +
       '<div class="cat-name">全部</div><div class="cat-count">' + products.length + " 款</div></button>";
 
-    var brandHtml = brands.filter(function (b) { return !!b.logo; }).slice(0, 8).map(function (b) {
+    var brandHtml = HOME_BRANDS.map(function (name) {
+      for (var i = 0; i < brands.length; i++) {
+        if (brands[i].name === name) return brands[i];
+      }
+      return null;
+    }).filter(Boolean).map(function (b) {
       var pal = S.paletteFor(b.name);
       var logo = (b.logo || b.img)
         ? '<img class="brand-logo" src="' + S.escapeHtml(b.logo || b.img) + '" alt="">'
@@ -296,7 +305,7 @@
         '<div class="eyebrow">PRODUCT CATALOG</div>' +
         "<h1>" + S.escapeHtml(meta.shopName || "产品中心") + "</h1>" +
         "<p>" + S.escapeHtml(meta.slogan || "产品齐全 · 欢迎来电咨询") + "</p>" +
-        '<div class="hero-tags"><span>' + products.length + " 款在册产品</span><span>整箱起批</span><span>支持寄样</span></div>" +
+        '<div class="hero-tags"><span>' + products.length + " 款在册产品</span></div>" +
       "</section>" +
       '<div class="search-wrap">' +
         '<button class="searchbar" data-act="tab" data-to="#/list" style="width:100%">' + I.search +
@@ -604,22 +613,13 @@
           "<small>营业时间</small></span></div>" +
       "</div></section>" +
 
-      '<section class="section">' +
-        '<div class="qr-box"><div class="qr-img">' +
-          (meta.qrcode
-            ? '<img src="' + S.escapeHtml(meta.qrcode) + '" alt="微信二维码">'
-            : '<div class="ph">二维码<br>可在后台设置</div>') +
-        "</div>" +
-        '<div class="qr-txt"><h3>长按或扫码加微信</h3>' +
-        "<p>添加时请备注「产品咨询」，方便我们快速对接你的需求。</p></div></div></section>" +
-
       '<section class="section" style="padding-bottom:24px">' +
         '<div class="section-head"><h2>询价与要货</h2></div>' +
         '<div class="form-card">' +
           '<div class="field"><label>微信号（微信与电话同号）</label>' +
             '<div class="inq-wx">' + S.escapeHtml(meta.wechat || meta.phone || "") + "</div></div>" +
           '<button class="submit-btn" data-act="copy" data-value="' + S.escapeHtml(meta.wechat || meta.phone || "") + '" data-label="微信号">复制微信号</button>' +
-          '<div class="field hint" style="margin:10px 0 0">加微信请备注「产品咨询」，写清要的产品和数量，我们把价格、起订量与库存直接发你。</div>' +
+          '<div class="field hint" style="margin:10px 0 0">加微信请备注「产品咨询」，方便了解情况。</div>' +
         "</div></section>";
 
     window.scrollTo(0, 0);
